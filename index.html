@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Rota Escolar</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f7fcf8;
+            color: #174d2d;
+        }
+
+        :root {
+            --verde: #1d713f;
+            --verde-escuro: #174d2d;
+            --verde-claro: #e6f7ea;
+            --amarelo: #f7d735;
+            --branco: #ffffff;
+        }
+
+        header {
+            height: 70px;
+
+            padding: 0 7%;
+
+            background: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-bottom: 1px solid #dcefe1;
+
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 23px;
+            font-weight: bold;
+
+            color: var(--verde);
+        }
+
+
+        .logo-icone {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--amarelo);
+
+            border-radius: 10px;
+
+            font-size: 23px;
+        }
+
+
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+
+
+        nav a {
+            color: #31513b;
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+
+        nav a:hover {
+            color: var(--verde);
+        }
+
+        .inicio {
+            min-height: 430px;
+
+            padding: 70px 8%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 40px;
+
+            background: linear-gradient(
+                135deg,
+                #ffffff,
+                #e8f8eb
+            );
+        }
+
+
+        .texto-inicio {
+            max-width: 580px;
+        }
+
+
+        .inicio h1 {
+            font-size: 52px;
+
+            line-height: 1.1;
+
+            color: var(--verde-escuro);
+
+            margin-bottom: 20px;
+        }
+
+
+        .inicio h1 span {
+            color: #d8b900;
+        }
+
+
+        .inicio p {
+            color: #5f7165;
+
+            font-size: 17px;
+
+            line-height: 1.7;
+
+            margin-bottom: 25px;
+        }
+
+
+        .botoes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+
+        .botao-amarelo,
+        .botao-branco {
+            padding: 13px 20px;
+
+            border-radius: 10px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+
+        .botao-amarelo {
+            border: none;
+
+            background: var(--amarelo);
+
+            color: #514600;
+        }
+
+
+        .botao-branco {
+            border: 2px solid #b8dfc1;
+
+            background: white;
+
+            color: #267342;
+        }
+
+
+        .botao-amarelo:hover,
+        .botao-branco:hover {
+            transform: translateY(-2px);
+        }
+
+
+        .desenho-onibus {
+            font-size: 150px;
+
+            animation: flutuar 3s infinite;
+        }
+
+
+        @keyframes flutuar {
+
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+        }
+
+        .pesquisa {
+            width: 88%;
+            max-width: 1100px;
+
+            margin: 35px auto;
+
+            padding: 25px;
+
+            background: white;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 25px rgba(0,0,0,.08);
+        }
+
+
+        .pesquisa h2 {
+            margin-bottom: 18px;
+
+            color: var(--verde-escuro);
+        }
+
+
+        .campos {
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                1fr
+                auto;
+
+            gap: 12px;
+        }
+
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+
+        .campo label {
+            font-size: 13px;
+
+            font-weight: bold;
+
+            color: #486450;
+        }
+
+
+        .campo input,
+        .campo select {
+            padding: 13px;
+
+            border: 1px solid #cfe5d4;
+
+            border-radius: 9px;
+
+            outline: none;
+
+            background: #fbfffc;
+        }
+
+
+        .campo input:focus,
+        .campo select:focus {
+            border-color: #56ad70;
+        }
+
+
+        .botoes-pesquisa {
+            display: flex;
+            gap: 8px;
+        }
+
+
+        .botao-localizacao {
+            width: 48px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: var(--verde-claro);
+
+            color: var(--verde);
+
+            font-size: 19px;
+
+            cursor: pointer;
+        }
+
+
+        .botao-procurar {
+            padding: 0 18px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: var(--amarelo);
+
+            color: #514600;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .area {
+            width: 88%;
+            max-width: 1100px;
+
+            margin: 40px auto;
+        }
+
+
+        .titulo-area {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 15px;
+        }
+
+
+        .titulo-area h2 {
+            color: var(--verde-escuro);
+        }
+
+
+        .status {
+            padding: 7px 11px;
+
+            background: var(--verde-claro);
+
+            color: var(--verde);
+
+            border-radius: 20px;
+
+            font-size: 12px;
+        }
+
+
+        #mapa {
+            height: 350px;
+
+            border: 4px solid white;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 25px rgba(0,0,0,.08);
+        }
+
+        .cabecalho-rotas {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+
+        .cabecalho-rotas h2 {
+            color: var(--verde-escuro);
+        }
+
+
+        #resultado {
+            color: #718177;
+
+            font-size: 13px;
+        }
+
+
+        .lista-onibus {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+        }
+
+
+        .cartao-onibus {
+            padding: 20px;
+
+            background: white;
+
+            border-radius: 16px;
+
+            border-left: 5px solid #51b86f;
+
+            box-shadow:
+                0 7px 20px rgba(0,0,0,.07);
+        }
+
+
+        .topo-cartao {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 15px;
+        }
+
+
+        .numero-onibus {
+            font-size: 21px;
+
+            font-weight: bold;
+
+            color: var(--verde);
+        }
+
+
+        .disponivel {
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            background: #d7f4dd;
+
+            color: #21723e;
+
+            font-size: 11px;
+
+            font-weight: bold;
+        }
+
+
+        .trajeto {
+            color: #365644;
+
+            font-weight: bold;
+
+            margin-bottom: 15px;
+        }
+
+
+        .seta {
+            margin: 0 6px;
+
+            color: #51b86f;
+        }
+
+
+        .informacoes {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 8px;
+        }
+
+
+        .informacao {
+            padding: 10px;
+
+            text-align: center;
+
+            border-radius: 8px;
+
+            background: #f2faf4;
+        }
+
+
+        .informacao strong {
+            display: block;
+
+            color: var(--verde);
+
+            margin-bottom: 4px;
+        }
+
+
+        .informacao small {
+            color: #718077;
+        }
+
+
+        .botao-detalhes {
+            width: 100%;
+
+            margin-top: 14px;
+
+            padding: 11px;
+
+            border: 1px solid #bde3c6;
+
+            border-radius: 9px;
+
+            background: white;
+
+            color: #217443;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .botao-detalhes:hover {
+            background: #edf8ef;
+        }
+
+        .fundo-janela {
+            position: fixed;
+
+            inset: 0;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(0,0,0,.5);
+
+            z-index: 2000;
+        }
+
+
+        .fundo-janela.mostrar {
+            display: flex;
+        }
+
+
+        .janela {
+            width: 100%;
+            max-width: 500px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            padding: 25px;
+
+            background: white;
+
+            border-radius: 18px;
+        }
+
+
+        .topo-janela {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 18px;
+        }
+
+
+        .topo-janela h2 {
+            color: var(--verde);
+        }
+
+
+        .fechar {
+            width: 35px;
+            height: 35px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: var(--verde-claro);
+
+            color: var(--verde);
+
+            cursor: pointer;
+        }
+
+
+        .resumo-rota {
+            padding: 18px;
+
+            margin-bottom: 18px;
+
+            border-radius: 14px;
+
+            background: var(--verde-claro);
+        }
+
+
+        .resumo-rota h3 {
+            color: var(--verde);
+
+            margin-bottom: 8px;
+        }
+
+
+        .parada {
+            padding: 10px;
+
+            margin-bottom: 5px;
+
+            border-left: 3px solid #51b86f;
+
+            color: #486450;
+        }
+
+
+        .botao-fechar {
+            width: 100%;
+
+            padding: 12px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: var(--amarelo);
+
+            color: #514600;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        @media (max-width: 850px) {
+
+            header {
+                padding: 0 5%;
+            }
+
+
+            nav {
+                gap: 12px;
+            }
+
+
+            nav a {
+                font-size: 11px;
+            }
+
+
+            .inicio {
+                padding: 55px 7%;
+
+                flex-direction: column;
+
+                text-align: center;
+            }
+
+
+            .inicio h1 {
+                font-size: 40px;
+            }
+
+
+            .inicio p {
+                font-size: 15px;
+            }
+
+
+            .botoes {
+                justify-content: center;
+            }
+
+
+            .desenho-onibus {
+                font-size: 100px;
+            }
+
+
+            .campos {
+                grid-template-columns: 1fr;
+            }
+
+
+            .botoes-pesquisa {
+                height: 48px;
+            }
+
+
+            .botao-procurar {
+                flex: 1;
+            }
+
+
+            .lista-onibus {
+                grid-template-columns: 1fr;
+            }
+
+
+            .titulo-area {
+                align-items: flex-start;
+
+                gap: 10px;
+
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <header>
+
+        <div class="logo">
+
+            <div class="logo-icone">
+                🚌
+            </div>
+
+            Rota Escolar
+
+        </div>
+
+
+        <nav>
+
+            <a href="#inicio">
+                Início
+            </a>
+
+            <a href="#mapa-area">
+                Mapa
+            </a>
+
+            <a href="#rotas">
+                Rotas
+            </a>
+
+        </nav>
+
+    </header>
+
+    <section
+        class="inicio"
+        id="inicio"
+    >
+
+        <div class="texto-inicio">
+
+            <h1>
+                Encontre sua rota escolar
+                <span>facilmente.</span>
+            </h1>
+
+
+            <p>
+                Informe sua localização e escolha
+                sua escola para encontrar os ônibus,
+                horários e paradas disponíveis.
+            </p>
+
+
+            <div class="botoes">
+
+                <button
+                    class="botao-amarelo"
+                    onclick="irParaBusca()"
+                >
+                    🔎 Encontrar ônibus
+                </button>
+
+
+                <button
+                    class="botao-branco"
+                    onclick="pegarLocalizacao()"
+                >
+                    📍 Minha localização
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="desenho-onibus">
+            🚌
+        </div>
+
+    </section>
+
+    <section
+        class="pesquisa"
+        id="busca"
+    >
+
+        <h2>
+            Encontre seu ônibus
+        </h2>
+
+
+        <div class="campos">
+
+
+            <div class="campo">
+
+                <label>
+                    Localização
+                </label>
+
+                <input
+                    type="text"
+                    id="localidade"
+                    placeholder="Ex.: Centro, Itapuã..."
+                >
+
+            </div>
+
+
+            <div class="campo">
+
+                <label>
+                    Escola
+                </label>
+
+                <select id="escola">
+
+                    <option value="">
+                        Escolha uma escola
+                    </option>
+
+                    <option value="central">
+                        Colégio Central
+                    </option>
+
+                    <option value="modelo">
+                        Escola Modelo
+                    </option>
+
+                    <option value="estadual">
+                        Colégio Estadual
+                    </option>
+
+                    <option value="instituto">
+                        Instituto Educacional
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="botoes-pesquisa">
+
+                <button
+                    class="botao-localizacao"
+                    onclick="pegarLocalizacao()"
+                >
+                    📍
+                </button>
+
+
+                <button
+                    class="botao-procurar"
+                    onclick="procurarOnibus()"
+                >
+                    Procurar
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section
+        class="area"
+        id="mapa-area"
+    >
+
+        <div class="titulo-area">
+
+            <h2>
+                📍 Mapa das rotas
+            </h2>
+
+            <span
+                class="status"
+                id="situacaoMapa"
+            >
+                Mapa pronto
+            </span>
+
+        </div>
+
+
+        <div id="mapa"></div>
+
+    </section>
+
+
+    <!-- =========================
+         ROTAS
+    ========================= -->
+
+    <section
+        class="area"
+        id="rotas"
+    >
+
+        <div class="cabecalho-rotas">
+
+            <h2>
+                🚌 Ônibus disponíveis
+            </h2>
+
+            <span id="resultado">
+                Faça uma busca.
+            </span>
+
+        </div>
+
+
+        <div
+            class="lista-onibus"
+            id="listaOnibus"
+        >
+
+            <div class="cartao-onibus">
+
+                <div class="topo-cartao">
+
+                    <div class="numero-onibus">
+                        🚌 101A
+                    </div>
+
+                    <span class="disponivel">
+                        Disponível
+                    </span>
+
+                </div>
+
+
+                <div class="trajeto">
+
+                    📍 Centro
+
+                    <span class="seta">
+                        →
+                    </span>
+
+                    🏫 Colégio Central
+
+                </div>
+
+
+                <div class="informacoes">
+
+                    <div class="informacao">
+
+                        <strong>
+                            06:30
+                        </strong>
+
+                        <small>
+                            Saída
+                        </small>
+
+                    </div>
+
+
+                    <div class="informacao">
+
+                        <strong>
+                            25 min
+                        </strong>
+
+                        <small>
+                            Duração
+                        </small>
+
+                    </div>
+
+
+                    <div class="informacao">
+
+                        <strong>
+                            8
+                        </strong>
+
+                        <small>
+                            Paradas
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="botao-detalhes"
+                    onclick="mostrarDetalhes(0)"
+                >
+                    Ver detalhes
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div
+        class="fundo-janela"
+        id="janela"
+    >
+
+        <div class="janela">
+
+            <div class="topo-janela">
+
+                <h2>
+                    Detalhes da rota
+                </h2>
+
+                <button
+                    class="fechar"
+                    onclick="fecharDetalhes()"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div
+                class="resumo-rota"
+                id="resumoRota"
+            >
+            </div>
+
+
+            <h3 style="margin-bottom: 12px;">
+                📍 Paradas
+            </h3>
+
+
+            <div
+                id="listaParadas"
+            >
+            </div>
+
+
+            <button
+                class="botao-fechar"
+                onclick="fecharDetalhes()"
+            >
+                Fechar
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Leaflet -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <script>
+
+        /* =========================
+           DADOS DOS ÔNIBUS
+        ========================= */
+
+        const onibus = [
+
+            {
+                numero: "101A",
+
+                origem: "Centro",
+
+                destino: "Colégio Central",
+
+                horario: "06:30",
+
+                duracao: "25 min",
+
+                pontos: 8,
+
+                paradas: [
+                    "Praça Central",
+                    "Av. Principal",
+                    "Mercado Municipal",
+                    "Rua das Flores",
+                    "Av. Escolar",
+                    "Praça da Juventude",
+                    "Rua da Escola",
+                    "Colégio Central"
+                ],
+
+                caminho: [
+                    [-12.9718, -38.5011],
+                    [-12.9700, -38.4950],
+                    [-12.9670, -38.4900],
+                    [-12.9640, -38.4860]
+                ]
+            },
+
+
+            {
+                numero: "205B",
+
+                origem: "Itapuã",
+
+                destino: "Escola Modelo",
+
+                horario: "06:45",
+
+                duracao: "35 min",
+
+                pontos: 11,
+
+                paradas: [
+                    "Praça de Itapuã",
+                    "Rua Principal",
+                    "Av. Dorival",
+                    "Mercado",
+                    "Praça do Bairro",
+                    "Rua das Palmeiras",
+                    "Av. Escolar",
+                    "Escola Modelo"
+                ],
+
+                caminho: [
+                    [-12.9570, -38.3530],
+                    [-12.9550, -38.3480],
+                    [-12.9520, -38.3420],
+                    [-12.9490, -38.3370]
+                ]
+            },
+
+
+            {
+                numero: "310C",
+
+                origem: "Centro",
+
+                destino: "Colégio Estadual",
+
+                horario: "07:00",
+
+                duracao: "30 min",
+
+                pontos: 9,
+
+                paradas: [
+                    "Centro",
+                    "Rua Principal",
+                    "Praça Municipal",
+                    "Av. da Bahia",
+                    "Rua Escolar",
+                    "Terminal",
+                    "Colégio Estadual"
+                ],
+
+                caminho: [
+                    [-12.9718, -38.5011],
+                    [-12.9680, -38.4950],
+                    [-12.9640, -38.4880],
+                    [-12.9600, -38.4820]
+                ]
+            },
+
+
+            {
+                numero: "415D",
+
+                origem: "Pituba",
+
+                destino: "Instituto Educacional",
+
+                horario: "07:10",
+
+                duracao: "28 min",
+
+                pontos: 7,
+
+                paradas: [
+                    "Pituba",
+                    "Av. Principal",
+                    "Rua das Árvores",
+                    "Shopping",
+                    "Praça Escolar",
+                    "Av. Educação",
+                    "Instituto Educacional"
+                ],
+
+                caminho: [
+                    [-13.0000, -38.4500],
+                    [-12.9970, -38.4450],
+                    [-12.9930, -38.4400],
+                    [-12.9900, -38.4350]
+                ]
+            },
+
+
+            {
+                numero: "122A",
+
+                origem: "Itapuã",
+
+                destino: "Colégio Central",
+
+                horario: "07:20",
+
+                duracao: "40 min",
+
+                pontos: 13,
+
+                paradas: [
+                    "Itapuã",
+                    "Praça Principal",
+                    "Rua do Comércio",
+                    "Av. da Praia",
+                    "Terminal",
+                    "Centro",
+                    "Praça Central",
+                    "Colégio Central"
+                ],
+
+                caminho: [
+                    [-12.9570, -38.3530],
+                    [-12.9600, -38.4000],
+                    [-12.9650, -38.4500],
+                    [-12.9718, -38.5011]
+                ]
+            },
+
+
+            {
+                numero: "330B",
+
+                origem: "Centro",
+
+                destino: "Escola Modelo",
+
+                horario: "07:30",
+
+                duracao: "22 min",
+
+                pontos: 6,
+
+                paradas: [
+                    "Centro",
+                    "Av. Principal",
+                    "Praça",
+                    "Rua Escolar",
+                    "Av. Educação",
+                    "Escola Modelo"
+                ],
+
+                caminho: [
+                    [-12.9718, -38.5011],
+                    [-12.9650, -38.4900],
+                    [-12.9600, -38.4800],
+                    [-12.9550, -38.4700]
+                ]
+            }
+
+        ];
+
+        let mapa;
+
+        let linhasDoMapa = [];
+
+        let marcadorPessoa = null;
+
+
+        function criarMapa() {
+
+            mapa = L.map("mapa")
+                .setView(
+                    [-12.9718, -38.5011],
+                    12
+                );
+
+
+            L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+                    attribution: "© OpenStreetMap"
+                }
+            ).addTo(mapa);
+
+
+            mostrarRotasNoMapa();
+
+        }
+
+
+        function mostrarRotasNoMapa() {
+
+            onibus.forEach(function(bus) {
+
+                const linha = L.polyline(
+                    bus.caminho,
+                    {
+                        color: "#43a866",
+                        weight: 5
+                    }
+                ).addTo(mapa);
+
+
+                linha.bindPopup(
+                    "<b>🚌 Ônibus " +
+                    bus.numero +
+                    "</b><br>" +
+
+                    bus.origem +
+                    " → " +
+                    bus.destino +
+                    "<br>" +
+
+                    "Saída: " +
+                    bus.horario
+                );
+
+
+                linhasDoMapa.push(linha);
+
+            });
+
+        }
+
+        function procurarOnibus() {
+
+            const localidade =
+                document
+                    .getElementById("localidade")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+
+            const escola =
+                document
+                    .getElementById("escola")
+                    .value;
+
+
+            const lista =
+                document.getElementById(
+                    "listaOnibus"
+                );
+
+
+            const resultado =
+                document.getElementById(
+                    "resultado"
+                );
+
+
+            if (
+                localidade === "" ||
+                escola === ""
+            ) {
+
+                lista.innerHTML = `
+
+                    <div class="cartao-onibus">
+
+                        <h3>
+                            ⚠️ Preencha os campos
+                        </h3>
+
+                        <p style="margin-top:8px;">
+                            Informe sua localização
+                            e escolha uma escola.
+                        </p>
+
+                    </div>
+
+                `;
+
+
+                resultado.textContent =
+                    "Preencha os campos.";
+
+                return;
+            }
+
+
+            const nomeEscola =
+                nomeDaEscola(escola);
+
+
+            const encontrados =
+                onibus.filter(function(bus) {
+
+                    const mesmaLocalidade =
+                        bus.origem
+                            .toLowerCase()
+                            .includes(localidade);
+
+
+                    const mesmaEscola =
+                        bus.destino
+                            .toLowerCase()
+                            .includes(
+                                nomeEscola.toLowerCase()
+                            );
+
+
+                    return (
+                        mesmaLocalidade &&
+                        mesmaEscola
+                    );
+
+                });
+
+
+            lista.innerHTML = "";
+
+
+            if (encontrados.length === 0) {
+
+                lista.innerHTML = `
+
+                    <div class="cartao-onibus">
+
+                        <h3>
+                            🚌 Nenhum ônibus encontrado
+                        </h3>
+
+                        <p style="margin-top:8px;">
+                            Tente Centro, Itapuã
+                            ou Pituba.
+                        </p>
+
+                    </div>
+
+                `;
+
+
+                resultado.textContent =
+                    "Nenhuma rota encontrada.";
+
+                return;
+            }
+
+
+            encontrados.forEach(function(bus) {
+
+                const numero =
+                    onibus.indexOf(bus);
+
+
+                const cartao =
+                    document.createElement("div");
+
+
+                cartao.className =
+                    "cartao-onibus";
+
+
+                cartao.innerHTML = `
+
+                    <div class="topo-cartao">
+
+                        <div class="numero-onibus">
+                            🚌 ${bus.numero}
+                        </div>
+
+                        <span class="disponivel">
+                            Disponível
+                        </span>
+
+                    </div>
+
+
+                    <div class="trajeto">
+
+                        📍 ${bus.origem}
+
+                        <span class="seta">
+                            →
+                        </span>
+
+                        🏫 ${bus.destino}
+
+                    </div>
+
+
+                    <div class="informacoes">
+
+                        <div class="informacao">
+
+                            <strong>
+                                ${bus.horario}
+                            </strong>
+
+                            <small>
+                                Saída
+                            </small>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <strong>
+                                ${bus.duracao}
+                            </strong>
+
+                            <small>
+                                Duração
+                            </small>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <strong>
+                                ${bus.pontos}
+                            </strong>
+
+                            <small>
+                                Paradas
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="botao-detalhes"
+                        onclick="mostrarDetalhes(${numero})"
+                    >
+                        Ver detalhes
+                    </button>
+
+                `;
+
+
+                lista.appendChild(cartao);
+
+            });
+
+
+            resultado.textContent =
+                encontrados.length +
+                " rota(s) encontrada(s).";
+
+
+            document
+                .getElementById("rotas")
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
+
+        }
+
+
+        function nomeDaEscola(valor) {
+
+            if (valor === "central") {
+                return "Colégio Central";
+            }
+
+            if (valor === "modelo") {
+                return "Escola Modelo";
+            }
+
+            if (valor === "estadual") {
+                return "Colégio Estadual";
+            }
+
+            if (valor === "instituto") {
+                return "Instituto Educacional";
+            }
+
+            return "";
+
+        }
+
+        function pegarLocalizacao() {
+
+            const situacao =
+                document.getElementById(
+                    "situacaoMapa"
+                );
+
+
+            if (!navigator.geolocation) {
+
+                alert(
+                    "Seu navegador não possui localização."
+                );
+
+                return;
+            }
+
+
+            situacao.textContent =
+                "Procurando localização...";
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                function(posicao) {
+
+                    const latitude =
+                        posicao.coords.latitude;
+
+
+                    const longitude =
+                        posicao.coords.longitude;
+
+
+                    mapa.setView(
+                        [latitude, longitude],
+                        15
+                    );
+
+
+                    if (marcadorPessoa) {
+
+                        mapa.removeLayer(
+                            marcadorPessoa
+                        );
+
+                    }
+
+
+                    marcadorPessoa =
+                        L.marker([
+                            latitude,
+                            longitude
+                        ])
+                        .addTo(mapa);
+
+
+                    marcadorPessoa
+                        .bindPopup(
+                            "📍 Você está aqui"
+                        )
+                        .openPopup();
+
+
+                    document
+                        .getElementById(
+                            "localidade"
+                        )
+                        .value =
+                        "Minha localização";
+
+
+                    situacao.textContent =
+                        "Localização encontrada!";
+
+                },
+
+
+                function() {
+
+                    situacao.textContent =
+                        "Localização não encontrada.";
+
+                    alert(
+                        "Não foi possível encontrar sua localização."
+                    );
+
+                }
+
+            );
+
+        }
+
+        function mostrarDetalhes(numero) {
+
+            const bus =
+                onibus[numero];
+
+
+            const janela =
+                document.getElementById(
+                    "janela"
+                );
+
+
+            const resumo =
+                document.getElementById(
+                    "resumoRota"
+                );
+
+
+            const lista =
+                document.getElementById(
+                    "listaParadas"
+                );
+
+
+            resumo.innerHTML = `
+
+                <h3>
+                    🚌 Linha ${bus.numero}
+                </h3>
+
+                <p>
+                    ${bus.origem}
+                    →
+                    ${bus.destino}
+                </p>
+
+                <br>
+
+                <strong>
+                    🕐 Saída: ${bus.horario}
+                </strong>
+
+                <br>
+
+                <strong>
+                    ⏱️ Duração: ${bus.duracao}
+                </strong>
+
+            `;
+
+
+            lista.innerHTML = "";
+
+
+            bus.paradas.forEach(
+                function(parada, indice) {
+
+                    const item =
+                        document.createElement("div");
+
+
+                    item.className =
+                        "parada";
+
+
+                    item.innerHTML =
+                        "📍 " +
+                        (indice + 1) +
+                        ". " +
+                        parada;
+
+
+                    lista.appendChild(item);
+
+                }
+            );
+
+
+            janela.classList.add("mostrar");
+
+
+            if (linhasDoMapa[numero]) {
+
+                linhasDoMapa[numero].setStyle({
+
+                    color: "#e7c300",
+
+                    weight: 8
+
+                });
+
+
+                mapa.fitBounds(
+                    linhasDoMapa[numero].getBounds()
+                );
+
+            }
+
+        }
+
+
+        function fecharDetalhes() {
+
+            document
+                .getElementById("janela")
+                .classList.remove("mostrar");
+
+
+            linhasDoMapa.forEach(
+                function(linha) {
+
+                    linha.setStyle({
+
+                        color: "#43a866",
+
+                        weight: 5
+
+                    });
+
+                }
+            );
+
+        }
+
+        function irParaBusca() {
+
+            document
+                .getElementById("busca")
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
+
+        }
+
+
+        document
+            .getElementById("localidade")
+            .addEventListener(
+                "keydown",
+                function(evento) {
+
+                    if (evento.key === "Enter") {
+                        procurarOnibus();
+                    }
+
+                }
+            );
+
+
+        document.addEventListener(
+            "keydown",
+            function(evento) {
+
+                if (evento.key === "Escape") {
+                    fecharDetalhes();
+                }
+
+            }
+        );
+
+
+        window.addEventListener(
+            "load",
+            function() {
+
+                criarMapa();
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
